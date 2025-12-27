@@ -1,0 +1,17 @@
+{
+  "name": "mkarchi_desktop",
+  "version": "0.0.1",
+  "description": "Electron application / mkarchi Desktop",
+  "license": "ISC",
+  "author": "Soufyan Rachdi",
+  "type": "commonjs",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ." ,
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7"
+  }
+}
