@@ -1,20 +1,229 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta
-      http-equiv="Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    />
-    <meta
-      http-equiv="X-Content-Security-Policy"
-      content="default-src 'self'; script-src 'self'"
-    />
-    <title>Hello from Electron renderer!</title>
-  </head>
-  <body>
-    <h1>Hello from Electron renderer!</h1>
-    <p>👋</p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>mkarchi Desktop</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <img src="assets/logo.png" alt="mkarchi logo" class="logo">
+      <h1>mkarchi Desktop</h1>
+      <p class="tagline">Architecture as Code. Simplified.</p>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="app-main">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-button active" data-tab="apply">
+        <span class="tab-icon">📁</span>
+        Create Project
+      </button>
+      <button class="tab-button" data-tab="give">
+        <span class="tab-icon">🔍</span>
+        Extract Structure
+      </button>
+    </div>
+
+    <!-- Apply Mode (Create Project) -->
+    <div class="tab-content active" id="apply-tab">
+      <div class="mode-section">
+        <h2>Create Project from Architecture Tree</h2>
+        <p class="section-description">
+          Paste your mkarchi architecture tree and generate a complete project structure.
+        </p>
+
+        <!-- Destination Folder -->
+        <div class="input-group">
+          <label for="apply-destination">Destination Folder</label>
+          <div class="input-with-button">
+            <input 
+              type="text" 
+              id="apply-destination" 
+              placeholder="Select where to create the project..."
+              readonly
+            >
+            <button id="apply-browse-btn" class="btn-secondary">Browse</button>
+          </div>
+        </div>
+
+        <!-- Architecture Tree Input -->
+        <div class="input-group">
+          <label for="apply-tree">Architecture Tree</label>
+          <textarea 
+            id="apply-tree" 
+            placeholder="Paste your architecture tree here...
+
+Example:
+my-app/
+├── src/
+│   ├── index.js
+│   └── utils.js
+├── package.json
+└── README.md"
+            rows="15"
+          ></textarea>
+        </div>
+
+        <!-- Preview Toggle -->
+        <div class="checkbox-group">
+          <input type="checkbox" id="apply-preview-toggle">
+          <label for="apply-preview-toggle">Show preview before generating</label>
+        </div>
+
+        <!-- Preview Section (hidden by default) -->
+        <div class="preview-section" id="apply-preview" style="display: none;">
+          <h3>Preview</h3>
+          <div class="preview-content" id="apply-preview-content">
+            <!-- Preview will be generated here -->
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="apply-generate-btn" class="btn-primary">
+          <span class="btn-icon">⚡</span>
+          Generate Project
+        </button>
+      </div>
+    </div>
+
+    <!-- Give Mode (Extract Structure) -->
+    <div class="tab-content" id="give-tab">
+      <div class="mode-section">
+        <h2>Extract Project Structure</h2>
+        <p class="section-description">
+          Reverse engineer any project into a reusable mkarchi template.
+        </p>
+
+        <!-- Source Folder -->
+        <div class="input-group">
+          <label for="give-source">Source Project Folder</label>
+          <div class="input-with-button">
+            <input 
+              type="text" 
+              id="give-source" 
+              placeholder="Select project to extract..."
+              readonly
+            >
+            <button id="give-browse-btn" class="btn-secondary">Browse</button>
+          </div>
+        </div>
+
+        <!-- Options Panel -->
+        <div class="options-panel">
+          <h3>Options</h3>
+          
+          <div class="options-grid">
+            <!-- Include Content -->
+            <div class="checkbox-group">
+              <input type="checkbox" id="give-include-content">
+              <label for="give-include-content">Include file content (-c)</label>
+            </div>
+
+            <!-- No Ignore -->
+            <div class="checkbox-group">
+              <input type="checkbox" id="give-no-ignore">
+              <label for="give-no-ignore">Include ignored files (--no-ignore)</label>
+            </div>
+
+            <!-- Max Depth -->
+            <div class="input-group compact">
+              <label for="give-max-depth">Max Depth</label>
+              <input 
+                type="number" 
+                id="give-max-depth" 
+                placeholder="e.g., 3"
+                min="1"
+              >
+            </div>
+
+            <!-- Max Size -->
+            <div class="input-group compact">
+              <label for="give-max-size">Max File Size (KB)</label>
+              <input 
+                type="number" 
+                id="give-max-size" 
+                placeholder="e.g., 10"
+                min="1"
+              >
+            </div>
+
+            <!-- No Max -->
+            <div class="checkbox-group">
+              <input type="checkbox" id="give-no-max">
+              <label for="give-no-max">No size limit (--no-max)</label>
+            </div>
+
+            <!-- Ignore Patterns -->
+            <div class="input-group full-width">
+              <label for="give-ignore-patterns">Ignore Patterns (comma-separated)</label>
+              <input 
+                type="text" 
+                id="give-ignore-patterns" 
+                placeholder="e.g., node_modules, .git, *.log"
+              >
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="give-extract-btn" class="btn-primary">
+          <span class="btn-icon">🔍</span>
+          Extract Structure
+        </button>
+
+        <!-- Output Section -->
+        <div class="output-section" id="give-output-section" style="display: none;">
+          <div class="output-header">
+            <h3>Extracted Structure</h3>
+            <div class="output-actions">
+              <button id="give-copy-btn" class="btn-secondary btn-small">
+                📋 Copy
+              </button>
+              <button id="give-export-btn" class="btn-secondary btn-small">
+                💾 Export
+              </button>
+            </div>
+          </div>
+          <textarea 
+            id="give-output" 
+            readonly
+            rows="15"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Logs Panel -->
+  <div class="logs-panel" id="logs-panel">
+    <div class="logs-header">
+      <h3>
+        <span class="logs-icon">📝</span>
+        Logs
+      </h3>
+      <button id="logs-toggle-btn" class="btn-icon-only">▼</button>
+    </div>
+    <div class="logs-content" id="logs-content">
+      <div class="log-entry info">
+        <span class="log-time">[00:00:00]</span>
+        <span class="log-message">mkarchi Desktop ready</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Bar -->
+  <div class="status-bar" id="status-bar">
+    <span id="status-text">Ready</span>
+    <span id="mkarchi-status">Checking mkarchi...</span>
+  </div>
+
+  <script src="renderer.js"></script>
+</body>
 </html>

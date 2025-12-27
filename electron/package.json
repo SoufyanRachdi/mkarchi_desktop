@@ -1,17 +1,48 @@
 {
-  "name": "mkarchi_desktop",
-  "version": "0.0.1",
-  "description": "Electron application / mkarchi Desktop",
-  "license": "ISC",
+  "name": "mkarchi-desktop",
+  "version": "1.0.0",
+  "description": "Desktop GUI for mkarchi - Architecture as Code made easy",
+  "license": "MIT",
   "author": "Soufyan Rachdi",
   "type": "commonjs",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron ." ,
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0"
   },
   "devDependencies": {
-    "electron": "^39.2.7"
+    "electron": "^39.2.7",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.mkarchi.desktop",
+    "productName": "mkarchi Desktop",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "node_modules/electron-store/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "assets/logo.png"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/logo.png"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/logo.png"
+    }
   }
 }
