@@ -19,7 +19,8 @@ async function checkInstallation() {
         return;
       }
 
-      const version = stdout.trim();
+      const versionMatch = stdout.trim().match(/(\d+\.\d+\.\d+)/);
+      const version = versionMatch ? versionMatch[1] : stdout.trim();
       resolve({
         installed: true,
         version: version,
@@ -29,6 +30,38 @@ async function checkInstallation() {
   });
 }
 
+/**
+ * Attempt to install/upgrade mkarchi via pip
+ * Tries several common pip invocations for cross-platform support.
+ * @returns {Promise<{success: boolean, output: string, error: string|null}>}
+ */
+async function installMkarchi() {
+  const commands = [
+    'pip install -U mkarchi',
+    'pip3 install -U mkarchi',
+    'py -m pip install -U mkarchi',
+    'python -m pip install -U mkarchi',
+    'python3 -m pip install -U mkarchi'
+  ];
+
+  let combinedOut = '';
+  for (const cmd of commands) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await new Promise((resolve) => {
+      exec(cmd, { maxBuffer: 1024 * 1024 * 20, env: { ...process.env, PYTHONIOENCODING: 'utf-8' } }, (error, stdout, stderr) => {
+        resolve({ error, stdout, stderr, cmd });
+      });
+    });
+
+    combinedOut += `\n$ ${result.cmd}\n${result.stdout || ''}${result.stderr || ''}`;
+
+    if (!result.error) {
+      return { success: true, output: combinedOut.trim(), error: null };
+    }
+  }
+
+  return { success: false, output: combinedOut.trim(), error: 'Failed to install mkarchi with available pip commands' };
+}
 /**
  * Execute mkarchi apply command
  * @param {string} treeContent - The architecture tree content
@@ -155,6 +188,7 @@ function getInstallationUrl() {
 
 module.exports = {
   checkInstallation,
+  installMkarchi,
   executeApply,
   executeGive,
   getInstallationUrl

@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>mkarchi Desktop</title>
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <!-- Header -->
   <header class="app-header">
@@ -43,12 +46,7 @@
         <div class="input-group">
           <label for="apply-destination">Destination Folder</label>
           <div class="input-with-button">
-            <input 
-              type="text" 
-              id="apply-destination" 
-              placeholder="Select where to create the project..."
-              readonly
-            >
+            <input type="text" id="apply-destination" placeholder="Select where to create the project..." readonly>
             <button id="apply-browse-btn" class="btn-secondary">Browse</button>
           </div>
         </div>
@@ -56,9 +54,7 @@
         <!-- Architecture Tree Input -->
         <div class="input-group">
           <label for="apply-tree">Architecture Tree</label>
-          <textarea 
-            id="apply-tree" 
-            placeholder="Paste your architecture tree here...
+          <textarea id="apply-tree" placeholder="Paste your architecture tree here...
 
 Example:
 my-app/
@@ -66,9 +62,7 @@ my-app/
 │   ├── index.js
 │   └── utils.js
 ├── package.json
-└── README.md"
-            rows="15"
-          ></textarea>
+└── README.md" rows="15"></textarea>
         </div>
 
         <!-- Preview Toggle -->
@@ -105,12 +99,7 @@ my-app/
         <div class="input-group">
           <label for="give-source">Source Project Folder</label>
           <div class="input-with-button">
-            <input 
-              type="text" 
-              id="give-source" 
-              placeholder="Select project to extract..."
-              readonly
-            >
+            <input type="text" id="give-source" placeholder="Select project to extract..." readonly>
             <button id="give-browse-btn" class="btn-secondary">Browse</button>
           </div>
         </div>
@@ -118,7 +107,7 @@ my-app/
         <!-- Options Panel -->
         <div class="options-panel">
           <h3>Options</h3>
-          
+
           <div class="options-grid">
             <!-- Include Content -->
             <div class="checkbox-group">
@@ -135,27 +124,17 @@ my-app/
             <!-- Max Depth -->
             <div class="input-group compact">
               <label for="give-max-depth">Max Depth</label>
-              <input 
-                type="number" 
-                id="give-max-depth" 
-                placeholder="e.g., 3"
-                min="1"
-              >
+              <input type="number" id="give-max-depth" placeholder="e.g., 3" min="1">
             </div>
 
             <!-- Max Size -->
-            <div class="input-group compact">
+            <div class="input-group compact" id="option-max-size-group">
               <label for="give-max-size">Max File Size (KB)</label>
-              <input 
-                type="number" 
-                id="give-max-size" 
-                placeholder="e.g., 10"
-                min="1"
-              >
+              <input type="number" id="give-max-size" placeholder="e.g., 10" min="1">
             </div>
 
             <!-- No Max -->
-            <div class="checkbox-group">
+            <div class="checkbox-group" id="option-no-max-group">
               <input type="checkbox" id="give-no-max">
               <label for="give-no-max">No size limit (--no-max)</label>
             </div>
@@ -163,11 +142,7 @@ my-app/
             <!-- Ignore Patterns -->
             <div class="input-group full-width">
               <label for="give-ignore-patterns">Ignore Patterns (comma-separated)</label>
-              <input 
-                type="text" 
-                id="give-ignore-patterns" 
-                placeholder="e.g., node_modules, .git, *.log"
-              >
+              <input type="text" id="give-ignore-patterns" placeholder="e.g., node_modules, .git, *.log">
             </div>
           </div>
         </div>
@@ -183,20 +158,29 @@ my-app/
           <div class="output-header">
             <h3>Extracted Structure</h3>
             <div class="output-actions">
-              <button id="give-copy-btn" class="btn-secondary btn-small">
-                📋 Copy
+              <button id="give-copy-btn" class="btn-primary btn-small">
+                <span class="btn-icon">📋</span> Copy Everything
               </button>
               <button id="give-export-btn" class="btn-secondary btn-small">
-                💾 Export
+                💾 Export to File
               </button>
             </div>
           </div>
-          <textarea 
-            id="give-output" 
-            readonly
-            rows="15"
-          ></textarea>
+
+          <div class="code-container">
+            <div class="code-header">
+              <span class="code-lang">mkarchi architecture</span>
+              <span class="code-details">structure.txt</span>
+            </div>
+            <textarea id="give-output" readonly class="code-output" rows="18"></textarea>
+          </div>
         </div>
+
+        <!-- Copy Feedback Toast -->
+        <div id="copy-toast" class="copy-feedback">
+          ✓ Copied to clipboard!
+        </div>
+
       </div>
     </div>
   </main>
@@ -226,4 +210,5 @@ my-app/
 
   <script src="renderer.js"></script>
 </body>
+
 </html>

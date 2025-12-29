@@ -66,11 +66,28 @@ ipcMain.handle('select-file', async () => {
   return result.filePaths[0];
 });
 
+// Prompt for mkarchi installation/upgrade with 3 buttons
+ipcMain.handle('prompt-install-mkarchi', async () => {
+  const result = await dialog.showMessageBox(mainWindow, {
+    type: 'warning',
+    title: 'mkarchi Management',
+    message: 'mkarchi CLI installation or upgrade required.',
+    detail: 'This application requires mkarchi (v0.1.6 or higher).\n\nChoose OK to open the guide, Auto to install/upgrade via pip, or Annuler to cancel.',
+    buttons: ['Annuler', 'OK', 'Auto'],
+    cancelId: 0,
+    defaultId: 2,
+    noLink: true
+  });
+  return { response: result.response };
+});
 // Check if mkarchi is installed
 ipcMain.handle('check-mkarchi', async () => {
   return await mkarchiCLI.checkInstallation();
 });
-
+// Install mkarchi via pip
+ipcMain.handle('install-mkarchi', async () => {
+  return await mkarchiCLI.installMkarchi();
+});
 // Execute mkarchi apply
 ipcMain.handle('execute-apply', async (event, tree, destination) => {
   return await mkarchiCLI.executeApply(tree, destination);

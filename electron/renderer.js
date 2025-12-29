@@ -63,28 +63,113 @@ logsToggleBtn.addEventListener('click', () => {
 
 // ===== Check mkarchi Installation =====
 
+/**
+ * Simple version comparison (e.g. "0.1.7" vs "0.1.6")
+ * Returns -1 if v1 < v2, 0 if v1 == v2, 1 if v1 > v2
+ */
+function compareVersions(v1, v2) {
+    if (!v1 || !v2) return 0;
+    const parts1 = v1.match(/(\d+)/g)?.map(Number) || [];
+    const parts2 = v2.match(/(\d+)/g)?.map(Number) || [];
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const p1 = parts1[i] || 0;
+        const p2 = parts2[i] || 0;
+        if (p1 < p2) return -1;
+        if (p1 > p2) return 1;
+    }
+    return 0;
+}
+
+let currentMkarchiVersion = null;
+
 async function checkMkarchiInstallation() {
     addLog('Checking mkarchi installation...');
     const result = await window.electronAPI.checkMkarchiInstalled();
 
     const statusElement = document.getElementById('mkarchi-status');
+    const maxSizeGroup = document.getElementById('option-max-size-group');
+    const noMaxGroup = document.getElementById('option-no-max-group');
 
     if (result.installed) {
+        currentMkarchiVersion = result.version;
         statusElement.textContent = `mkarchi ${result.version} installed ✓`;
         statusElement.className = 'installed';
         addLog(`mkarchi ${result.version} detected`, 'success');
+
+        // Check if upgrade is needed (< 0.1.6)
+        if (compareVersions(result.version, '0.1.6') < 0) {
+            const upgrade = confirm(
+                `A new version of mkarchi is required.\n\n` +
+                `Current: ${result.version}\n` +
+                `Required: 0.1.6 or higher\n\n` +
+                `Would you like to upgrade automatically?`
+            );
+            if (upgrade) {
+                await performAutoInstallation(true);
+            }
+        }
+
+        // Feature Toggling: Max size features only in 0.1.7+
+        if (compareVersions(result.version, '0.1.7') < 0) {
+            maxSizeGroup.style.display = 'none';
+            noMaxGroup.style.display = 'none';
+        } else {
+            maxSizeGroup.style.display = 'block';
+            noMaxGroup.style.display = 'flex';
+        }
+
     } else {
         statusElement.textContent = 'mkarchi not installed ✗';
         statusElement.className = 'not-installed';
-        addLog('mkarchi is not installed. Please install it first.', 'error');
+        addLog('mkarchi is not installed. You can open the guide or install it automatically.', 'error');
+        await performAutoInstallation();
+    }
+}
 
-        // Show installation prompt
+async function performAutoInstallation(isUpgrade = false) {
+    // Prefer native 3-button prompt if available via IPC
+    if (window.electronAPI &&
+        typeof window.electronAPI.promptInstallMkarchi === 'function' &&
+        typeof window.electronAPI.installMkarchi === 'function') {
+
+        const promptRes = await window.electronAPI.promptInstallMkarchi();
+        // Buttons: ['Annuler', 'OK', 'Auto'] -> 0, 1, 2
+        if (promptRes && promptRes.response === 1) {
+            await window.electronAPI.openExternal('https://mkarchi.vercel.app/learn/0.1.7#installation');
+        } else if (promptRes && promptRes.response === 2) {
+            try {
+                const action = isUpgrade ? 'Upgrading' : 'Installing';
+                setStatus(`${action} mkarchi via pip...`);
+                addLog(`Attempting to ${action.toLowerCase()} mkarchi automatically (pip)...`, 'info');
+
+                const installRes = await window.electronAPI.installMkarchi();
+                if (installRes && installRes.success) {
+                    addLog(`mkarchi ${isUpgrade ? 'upgraded' : 'installed'} successfully. Re-checking...`, 'success');
+                    if (installRes.output) addLog(installRes.output, 'info');
+                    await checkMkarchiInstallation();
+                } else {
+                    addLog(`Automatic ${action.toLowerCase()} failed.`, 'error');
+                    if (installRes && installRes.output) addLog(installRes.output, 'error');
+                    alert(`Automatic ${action.toLowerCase()} failed. Opening installation guide.`);
+                    await window.electronAPI.openExternal('https://mkarchi.vercel.app/learn/0.1.7#installation');
+                }
+            } catch (e) {
+                addLog(`Automatic installation error: ${e.message}`, 'error');
+                alert('Automatic installation encountered an error. Opening installation guide.');
+                await window.electronAPI.openExternal('https://mkarchi.vercel.app/learn/0.1.7#installation');
+            } finally {
+                setStatus('Ready');
+            }
+        } else {
+            addLog('Installation cancelled by user.', 'info');
+        }
+    } else {
+        // Fallback to simple confirm if IPC prompt not available
         const install = confirm(
             'mkarchi CLI is not installed.\n\n' +
             'This application requires mkarchi to be installed.\n' +
             'Would you like to open the installation guide?'
         );
-
         if (install) {
             await window.electronAPI.openExternal('https://mkarchi.vercel.app/learn/0.1.7#installation');
         }
@@ -242,11 +327,14 @@ giveExtractBtn.addEventListener('click', async () => {
     const options = {
         includeContent: giveIncludeContentCheckbox.checked,
         noIgnore: giveNoIgnoreCheckbox.checked,
-        noMax: giveNoMaxCheckbox.checked,
-        maxDepth: parseInt(giveMaxDepthInput.value) || 0,
-        maxSize: parseInt(giveMaxSizeInput.value) || 0,
-        ignorePatterns: giveIgnorePatternsInput.value.trim()
+        maxDepth: parseInt(giveMaxDepthInput.value) || 0
     };
+
+    // 0.1.7+ features
+    if (currentMkarchiVersion && compareVersions(currentMkarchiVersion, '0.1.7') >= 0) {
+        options.noMax = giveNoMaxCheckbox.checked;
+        options.maxSize = parseInt(giveMaxSizeInput.value) || 0;
+    }
 
     // Disable button during execution
     giveExtractBtn.disabled = true;
@@ -296,11 +384,21 @@ giveCopyBtn.addEventListener('click', async () => {
     const result = await window.electronAPI.copyToClipboard(output);
 
     if (result.success) {
-        addLog('Copied to clipboard', 'success');
-        giveCopyBtn.innerHTML = '✓ Copied!';
+        addLog('Copied structure to clipboard', 'success');
+
+        // Visual feedback
+        const toast = document.getElementById('copy-toast');
+        toast.classList.add('show');
+
+        const originalHtml = giveCopyBtn.innerHTML;
+        giveCopyBtn.innerHTML = '<span class="btn-icon">✓</span> Copied!';
+        giveCopyBtn.classList.add('success');
+
         setTimeout(() => {
-            giveCopyBtn.innerHTML = '📋 Copy';
-        }, 2000);
+            toast.classList.remove('show');
+            giveCopyBtn.innerHTML = '<span class="btn-icon">📋</span> Copy Architecture';
+            giveCopyBtn.classList.remove('success');
+        }, 2500);
     } else {
         addLog('Failed to copy to clipboard', 'error');
         alert('Failed to copy to clipboard');
