@@ -159,19 +159,55 @@ async function executeGive(sourcePath, options = {}) {
       maxBuffer: 1024 * 1024 * 10,
       cwd: sourcePath,
       env: { ...process.env, PYTHONIOENCODING: 'utf-8' }
-    }, (error, stdout, stderr) => {
-      if (error) {
-        resolve({
-          success: false,
-          output: stdout || '',
-          error: stderr || error.message
-        });
-        return;
+    }, async (error, stdout, stderr) => {
+      // Logic change: We prioritize reading the file 'structure.txt' because
+      // stdout often contains progress bars and logs.
+
+      let finalOutput = '';
+      let fileReadSuccess = false;
+      const defaultStructureFile = 'structure.txt';
+      const structurePath = path.join(sourcePath, defaultStructureFile);
+
+      try {
+        // Check if structure file exists
+        await fs.access(structurePath);
+
+        // Read it
+        const content = await fs.readFile(structurePath, 'utf8');
+        if (content && content.length > 0) {
+          finalOutput = content;
+          fileReadSuccess = true;
+        }
+
+        // Delete if requested
+        if (options.deleteAfter) {
+          try {
+            await fs.unlink(structurePath);
+          } catch (delErr) {
+            console.error('Failed to delete structure file:', delErr);
+          }
+        }
+
+      } catch (err) {
+        // File not found or readable
+      }
+
+      // Fallback to stdout if file read failed
+      if (!fileReadSuccess) {
+        if (error) {
+          resolve({
+            success: false,
+            output: stdout || '',
+            error: stderr || error.message
+          });
+          return;
+        }
+        finalOutput = stdout;
       }
 
       resolve({
         success: true,
-        output: stdout,
+        output: finalOutput || 'Structure extracted but no content found (check console logs).',
         error: null
       });
     });

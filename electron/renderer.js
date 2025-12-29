@@ -96,6 +96,9 @@ async function checkMkarchiInstallation() {
         statusElement.className = 'installed';
         addLog(`mkarchi ${result.version} detected`, 'success');
 
+        // Sync version with Main process for the menu
+        window.electronAPI.syncVersion(result.version);
+
         // Check if upgrade is needed (< 0.1.6)
         if (compareVersions(result.version, '0.1.6') < 0) {
             const upgrade = confirm(
@@ -288,6 +291,8 @@ const giveNoIgnoreCheckbox = document.getElementById('give-no-ignore');
 const giveMaxDepthInput = document.getElementById('give-max-depth');
 const giveMaxSizeInput = document.getElementById('give-max-size');
 const giveNoMaxCheckbox = document.getElementById('give-no-max');
+const giveAutoCopyCheckbox = document.getElementById('give-auto-copy');
+const giveDeleteAfterCheckbox = document.getElementById('give-delete-after');
 const giveIgnorePatternsInput = document.getElementById('give-ignore-patterns');
 const giveExtractBtn = document.getElementById('give-extract-btn');
 const giveOutputSection = document.getElementById('give-output-section');
@@ -336,6 +341,11 @@ giveExtractBtn.addEventListener('click', async () => {
         options.maxSize = parseInt(giveMaxSizeInput.value) || 0;
     }
 
+    // New features: Delete after
+    options.deleteAfter = giveDeleteAfterCheckbox.checked;
+
+    // Disable button during execution
+
     // Disable button during execution
     giveExtractBtn.disabled = true;
     giveExtractBtn.innerHTML = '<span class="btn-icon">⏳</span> Extracting...';
@@ -355,6 +365,11 @@ giveExtractBtn.addEventListener('click', async () => {
 
             // Scroll to output
             giveOutputSection.scrollIntoView({ behavior: 'smooth' });
+
+            // Auto-copy if enabled
+            if (giveAutoCopyCheckbox.checked) {
+                giveCopyBtn.click();
+            }
         } else {
             addLog('Failed to extract structure', 'error');
             addLog(`Error: ${result.error}`, 'error');

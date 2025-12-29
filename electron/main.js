@@ -1,9 +1,54 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, clipboard } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, clipboard, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const mkarchiCLI = require('./mkarchi-cli');
 
 let mainWindow;
+let currentVersion = '0.1.7'; // Default fallback
+
+function createMenu(version) {
+  const template = [
+    { role: 'fileMenu' },
+    { role: 'editMenu' },
+    { role: 'viewMenu' },
+    { role: 'windowMenu' },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Learn More',
+          click: async () => {
+            await shell.openExternal('https://mkarchi.vercel.app/');
+          }
+        },
+        {
+          label: 'Documentation',
+          click: async () => {
+            const v = version || currentVersion;
+            await shell.openExternal(`https://mkarchi.vercel.app/learn/${v}`);
+          }
+        },
+        {
+          label: 'Community Discussions',
+          click: async () => {
+            await shell.openExternal('https://mkarchi.vercel.app/community');
+          }
+        },
+        {
+          label: 'Search Issues',
+          click: async () => {
+            await shell.openExternal('https://mkarchi.vercel.app/faq');
+          }
+        },
+        { type: 'separator' },
+        { role: 'about' }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -35,6 +80,10 @@ function createWindow() {
 }
 
 // IPC Handlers
+ipcMain.handle('sync-version', (event, version) => {
+  currentVersion = version;
+  createMenu(version);
+});
 
 // Select folder dialog
 ipcMain.handle('select-folder', async () => {
@@ -143,6 +192,7 @@ ipcMain.handle('open-external', async (event, url) => {
 
 // App lifecycle
 app.whenReady().then(() => {
+  createMenu(); // Initialize with default
   createWindow();
 
   app.on('activate', () => {
