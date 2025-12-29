@@ -1,6 +1,6 @@
 {
   "name": "mkarchi-desktop",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Desktop GUI for mkarchi - Architecture as Code made easy",
   "license": "MIT",
   "author": "Soufyan Rachdi",
@@ -15,11 +15,13 @@
     "build:linux": "electron-builder --linux"
   },
   "dependencies": {
-    "electron-store": "^8.1.0"
+    "electron-log": "^5.4.3",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.6.2"
   },
   "devDependencies": {
     "electron": "^39.2.7",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "^24.13.3"
   },
   "build": {
     "appId": "com.mkarchi.desktop",
@@ -43,6 +45,13 @@
     "linux": {
       "target": "AppImage",
       "icon": "assets/logo.png"
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "SoufyanRachdi",
+        "repo": "mkarchi_desktop"
+      }
+    ]
   }
 }

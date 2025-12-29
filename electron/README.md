@@ -1,12 +1,11 @@
 # mkarchi Desktop
 
-Desktop GUI application for **mkarchi** - Architecture as Code made easy.
+MkArchi Desktop is the ultimate graphical interface for MkArchi CLI, the modular architecture engine.
 
-![mkarchi Desktop](assets/logo.png)
+It empowers developers to visually design, apply, and share architectural structures seamlessly.
+Auto-updates ensure you’re always on the latest version, and integrated CLI checks guarantee compatibility with your workflow.
 
-## Overview
-
-mkarchi Desktop provides a user-friendly graphical interface for the mkarchi CLI tool, eliminating the need for command-line usage. Create project structures and extract existing architectures with just a few clicks.
+Think of it as a rocket-powered control center for your architecture projects — download, design, deploy.
 
 ## Features
 

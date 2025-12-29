@@ -2,6 +2,8 @@ const { app, BrowserWindow, ipcMain, dialog, shell, clipboard, Menu } = require(
 const path = require('path');
 const fs = require('fs').promises;
 const mkarchiCLI = require('./mkarchi-cli');
+const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 
 let mainWindow;
 let currentVersion = '0.1.7'; // Default fallback
@@ -194,6 +196,36 @@ ipcMain.handle('open-external', async (event, url) => {
 app.whenReady().then(() => {
   createMenu(); // Initialize with default
   createWindow();
+
+  // Auto Updater
+  log.transports.file.level = 'info';
+  autoUpdater.logger = log;
+
+  // Check for updates and notify
+  autoUpdater.checkForUpdatesAndNotify();
+
+  // Auto Updater Events
+  autoUpdater.on('checking-for-update', () => {
+    log.info('Checking for update...');
+  });
+  autoUpdater.on('update-available', (info) => {
+    log.info('Update available.', info);
+  });
+  autoUpdater.on('update-not-available', (info) => {
+    log.info('Update not available.', info);
+  });
+  autoUpdater.on('error', (err) => {
+    log.error('Error in auto-updater. ' + err);
+  });
+  autoUpdater.on('download-progress', (progressObj) => {
+    let log_message = "Download speed: " + progressObj.bytesPerSecond;
+    log_message = log_message + ' - Downloaded ' + progressObj.percent + '%';
+    log_message = log_message + ' (' + progressObj.transferred + "/" + progressObj.total + ')';
+    log.info(log_message);
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('Update downloaded', info);
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
