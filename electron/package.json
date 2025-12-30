@@ -33,13 +33,23 @@
     "files": [
       "main.js",
       "preload.js",
-      "renderer/**/*",
+      "renderer.js",
+      "mkarchi-cli.js",
+      "index.html",
+      "styles.css",
       "assets/**/*",
       "package.json"
     ],
     "win": {
       "target": "nsis",
       "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "mkarchi Desktop"
     },
     "mac": {
       "target": "dmg",

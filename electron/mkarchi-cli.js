@@ -37,11 +37,11 @@ async function checkInstallation() {
  */
 async function installMkarchi() {
   const commands = [
-    'pip install -U mkarchi',
-    'pip3 install -U mkarchi',
-    'py -m pip install -U mkarchi',
-    'python -m pip install -U mkarchi',
-    'python3 -m pip install -U mkarchi'
+    'pip install mkarchi==0.1.7',
+    'pip3 install mkarchi==0.1.7',
+    'py -m pip install mkarchi==0.1.7',
+    'python -m pip install mkarchi==0.1.7',
+    'python3 -m pip install mkarchi==0.1.7'
   ];
 
   let combinedOut = '';
