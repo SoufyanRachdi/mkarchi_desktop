@@ -13,8 +13,7 @@
     "build:win": "electron-builder --win",
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux",
-  "pack": "electron-builder --dir",
-  "dist": "electron-builder"
+    "pack": "electron-builder --dir"
   },
   "dependencies": {
     "electron-log": "^5.4.3",
@@ -32,21 +31,23 @@
       "output": "dist"
     },
     "files": [
-      "**/*",
-      "!node_modules/**/*",
-      "node_modules/electron-store/**/*"
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "package.json"
     ],
     "win": {
       "target": "nsis",
-      "icon": "assets/logo.png"
+      "icon": "assets/icon.ico"
     },
     "mac": {
       "target": "dmg",
-      "icon": "assets/logo.png"
+      "icon": "assets/icon.icns"
     },
     "linux": {
       "target": "AppImage",
-      "icon": "assets/logo.png"
+      "icon": "assets"
     },
     "publish": [
       {
