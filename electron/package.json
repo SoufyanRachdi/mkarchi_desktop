@@ -6,6 +6,7 @@
   "author": "Soufyan Rachdi",
   "type": "commonjs",
   "main": "main.js",
+
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
@@ -15,21 +16,26 @@
     "build:linux": "electron-builder --linux",
     "pack": "electron-builder --dir"
   },
+
   "dependencies": {
     "electron-log": "^5.4.3",
     "electron-store": "^8.1.0",
     "electron-updater": "^6.6.2"
   },
+
   "devDependencies": {
     "electron": "^39.2.7",
     "electron-builder": "^24.13.3"
   },
+
   "build": {
     "appId": "com.mkarchi.desktop",
-    "productName": "mkarchi Desktop",
+    "productName": "Mkarchi Desktop",
+
     "directories": {
       "output": "dist"
     },
+
     "files": [
       "main.js",
       "preload.js",
@@ -40,25 +46,31 @@
       "assets/**/*",
       "package.json"
     ],
+
     "win": {
       "target": "nsis",
       "icon": "assets/icon.ico"
     },
+
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "mkarchi Desktop"
+      "shortcutName": "Mkarchi Desktop"
     },
+
     "mac": {
       "target": "dmg",
       "icon": "assets/icon.icns"
     },
+
     "linux": {
-      "target": "AppImage",
+      "target": ["AppImage"],
+      "category": "Utility",
       "icon": "assets/logo.png"
     },
+
     "publish": [
       {
         "provider": "github",
