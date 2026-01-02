@@ -11,8 +11,8 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      # Step 1: Checkout code
-      - name: Checkout repository
+      # Step 1: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v3
 
       # Step 2: Setup Node.js
@@ -27,11 +27,13 @@ jobs:
           cd electron
           npm install
 
-      # Step 4: Build macOS app
+      # Step 4: Build macOS DMG (skip GitHub publishing)
       - name: Build macOS DMG
         run: |
           cd electron
           npm run build:mac
+        env:
+          GH_TOKEN: ""  # disables GitHub publishing
 
       # Step 5: Upload DMG artifact
       - name: Upload DMG
