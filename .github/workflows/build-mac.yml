@@ -11,22 +11,31 @@ jobs:
     runs-on: macos-latest
 
     steps:
-      - name: Checkout code
+      # Step 1: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
+      # Step 2: Setup Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 20 # or your project's Node version
+          node-version: 20
 
+      # Step 3: Install dependencies inside electron/
       - name: Install dependencies
-        run: npm install
+        run: |
+          cd electron
+          npm install
 
-      - name: Build macOS app
-        run: npm run build:mac
+      # Step 4: Build macOS app
+      - name: Build macOS DMG
+        run: |
+          cd electron
+          npm run build:mac
 
-      - name: Upload artifact
+      # Step 5: Upload DMG artifact
+      - name: Upload DMG
         uses: actions/upload-artifact@v4
         with:
-          name: macos-build
-          path: dist/*.dmg
+          name: mkarchi-mac-dmg
+          path: electron/dist/*.dmg
