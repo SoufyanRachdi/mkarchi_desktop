@@ -31,7 +31,7 @@ jobs:
       - name: Build macOS DMG
         run: |
           cd electron
-          npm run build:mac
+          npm run build:mac -- --publish=never
         env:
           GH_TOKEN: ""  # disables GitHub publishing
 
